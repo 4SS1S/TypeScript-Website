@@ -1,5 +1,26 @@
 # @typescript/sandbox
 
+## 0.1.8
+
+### Patch Changes
+
+- Updated dependencies [[`4a30b02`](https://github.com/microsoft/TypeScript-Website/commit/4a30b022bc0c1df6b6abb71c99c104f3b19f2c91)]:
+  - @typescript/vfs@1.6.1
+
+## 0.1.7
+
+### Patch Changes
+
+- Updated dependencies [[`1d0af97`](https://github.com/microsoft/TypeScript-Website/commit/1d0af97318b79943fe0bfa8871ee6e8c584c9af5)]:
+  - @typescript/ata@0.9.7
+
+## 0.1.6
+
+### Patch Changes
+
+- Updated dependencies [[`441338c`](https://github.com/microsoft/TypeScript-Website/commit/441338c04fbbef834ffa1ac6dc0dc8816e9137fc), [`725841a`](https://github.com/microsoft/TypeScript-Website/commit/725841adc9e5b734ccb0663fccb2ba05d0dcca62)]:
+  - @typescript/vfs@1.6.0
+
 ## 0.1.5
 
 ### Patch Changes

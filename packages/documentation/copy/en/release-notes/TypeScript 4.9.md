@@ -59,7 +59,7 @@ const palette = {
 //  ~~~~ The typo is now caught!
 } satisfies Record<Colors, string | RGB>;
 
-// toUpperCase() methode is still accessible!
+// toUpperCase() method is still accessible!
 const greenNormalized = palette.green.toUpperCase();
 ```
 
@@ -481,8 +481,8 @@ If this change impacts your library, you may need to add `types@` version select
       },
       "exports": {
           ".": {
-+             "types@<4.8": "4.8-types/main.d.ts",
-+             "types": "modern-types/main.d.ts",
++             "types@<4.8": "./4.8-types/main.d.ts",
++             "types": "./modern-types/main.d.ts",
               "import": "./dist/main.js"
           }
       }

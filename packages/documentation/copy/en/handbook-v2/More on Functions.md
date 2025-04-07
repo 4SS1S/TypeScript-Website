@@ -90,6 +90,20 @@ interface CallOrConstruct {
   (n?: number): string;
   new (s: string): Date;
 }
+
+function fn(ctor: CallOrConstruct) {
+  // Passing an argument of type `number` to `ctor` matches it against
+  // the first definition in the `CallOrConstruct` interface.
+  console.log(ctor(10));
+              // ^?
+
+  // Similarly, passing an argument of type `string` to `ctor` matches it
+  // against the second definition in the `CallOrConstruct` interface.
+  console.log(new ctor("10"));
+                  // ^?
+}
+
+fn(Date);
 ```
 
 ## Generic Functions
@@ -547,7 +561,7 @@ Callers can invoke this with either sort of value, and as an added bonus, we don
 
 > Always prefer parameters with union types instead of overloads when possible
 
-### Declaring `this` in a Function
+## Declaring `this` in a Function
 
 TypeScript will infer what the `this` should be in a function via code flow analysis, for example in the following:
 
@@ -587,7 +601,7 @@ This pattern is common with callback-style APIs, where another object typically 
 // @errors: 7041 7017
 interface User {
   id: number;
-  isAdmin: boolean;
+  admin: boolean;
 }
 declare const getDB: () => DB;
 // ---cut---
@@ -872,5 +886,4 @@ const f3 = function (): void {
 
 For more on `void` please refer to these other documentation entries:
 
-- [v2 handbook](https://www.typescriptlang.org/docs/handbook/2/functions.html#void)
 - [FAQ - "Why are functions returning non-void assignable to function returning void?"](https://github.com/Microsoft/TypeScript/wiki/FAQ#why-are-functions-returning-non-void-assignable-to-function-returning-void)

@@ -32,6 +32,7 @@ export interface VirtualTypeScriptEnvironment {
   getSourceFile: (fileName: string) => import("typescript").SourceFile | undefined
   createFile: (fileName: string, content: string) => void
   updateFile: (fileName: string, content: string, replaceTextSpan?: import("typescript").TextSpan) => void
+  deleteFile: (fileName: string) => void
 }
 
 /**
@@ -54,7 +55,7 @@ export function createVirtualTypeScriptEnvironment(
 ): VirtualTypeScriptEnvironment {
   const mergedCompilerOpts = { ...defaultCompilerOptions(ts), ...compilerOptions }
 
-  const { languageServiceHost, updateFile } = createVirtualLanguageServiceHost(
+  const { languageServiceHost, updateFile, deleteFile } = createVirtualLanguageServiceHost(
     sys,
     rootFiles,
     mergedCompilerOpts,
@@ -99,6 +100,12 @@ export function createVirtualTypeScriptEnvironment(
 
       updateFile(newSourceFile)
     },
+    deleteFile(fileName) {
+      const sourceFile = languageService.getProgram()!.getSourceFile(fileName)
+      if (sourceFile) {
+        deleteFile(sourceFile)
+      }
+    }
   }
 }
 
@@ -122,16 +129,22 @@ export const knownLibFilesForCompilerOptions = (compilerOptions: CompilerOptions
   // or similar is merged.
   const files = [
     "lib.d.ts",
+    "lib.core.d.ts",
     "lib.decorators.d.ts",
     "lib.decorators.legacy.d.ts",
+    "lib.dom.asynciterable.d.ts",
     "lib.dom.d.ts",
     "lib.dom.iterable.d.ts",
+    "lib.webworker.asynciterable.d.ts",
     "lib.webworker.d.ts",
     "lib.webworker.importscripts.d.ts",
     "lib.webworker.iterable.d.ts",
     "lib.scripthost.d.ts",
     "lib.es5.d.ts",
     "lib.es6.d.ts",
+    "lib.es7.d.ts",
+    "lib.core.es6.d.ts",
+    "lib.core.es7.d.ts",
     "lib.es2015.collection.d.ts",
     "lib.es2015.core.d.ts",
     "lib.es2015.d.ts",
@@ -145,6 +158,8 @@ export const knownLibFilesForCompilerOptions = (compilerOptions: CompilerOptions
     "lib.es2016.array.include.d.ts",
     "lib.es2016.d.ts",
     "lib.es2016.full.d.ts",
+    "lib.es2016.intl.d.ts",
+    "lib.es2017.arraybuffer.d.ts",
     "lib.es2017.d.ts",
     "lib.es2017.date.d.ts",
     "lib.es2017.full.d.ts",
@@ -196,15 +211,30 @@ export const knownLibFilesForCompilerOptions = (compilerOptions: CompilerOptions
     "lib.es2023.collection.d.ts",
     "lib.es2023.d.ts",
     "lib.es2023.full.d.ts",
+    "lib.es2023.intl.d.ts",
+    "lib.es2024.arraybuffer.d.ts",
+    "lib.es2024.collection.d.ts",
+    "lib.es2024.d.ts",
+    "lib.es2024.full.d.ts",
+    "lib.es2024.object.d.ts",
+    "lib.es2024.promise.d.ts",
+    "lib.es2024.regexp.d.ts",
+    "lib.es2024.sharedmemory.d.ts",
+    "lib.es2024.string.d.ts",
     "lib.esnext.array.d.ts",
     "lib.esnext.asynciterable.d.ts",
     "lib.esnext.bigint.d.ts",
+    "lib.esnext.collection.d.ts",
     "lib.esnext.d.ts",
     "lib.esnext.decorators.d.ts",
     "lib.esnext.disposable.d.ts",
+    "lib.esnext.float16.d.ts",
     "lib.esnext.full.d.ts",
     "lib.esnext.intl.d.ts",
+    "lib.esnext.iterator.d.ts",
+    "lib.esnext.object.d.ts",
     "lib.esnext.promise.d.ts",
+    "lib.esnext.regexp.d.ts",
     "lib.esnext.string.d.ts",
     "lib.esnext.symbol.d.ts",
     "lib.esnext.weakref.d.ts"
@@ -466,6 +496,9 @@ export function createSystem(files: Map<string, string>): System {
     writeFile: (fileName, contents) => {
       files.set(fileName, contents)
     },
+    deleteFile: (fileName) => {
+      files.delete(fileName)
+    },
   }
 }
 
@@ -545,6 +578,9 @@ export function createFSBackedSystem(
     writeFile: (fileName, contents) => {
       files.set(fileName, contents)
     },
+    deleteFile: (fileName) => {
+      files.delete(fileName)
+    },
     realpath: nodeSys.realpath,
   }
 }
@@ -564,6 +600,7 @@ export function createVirtualCompilerHost(sys: System, compilerOptions: Compiler
   type Return = {
     compilerHost: CompilerHost
     updateFile: (sourceFile: SourceFile) => boolean
+    deleteFile: (sourceFile: SourceFile) => boolean
   }
 
   const vHost: Return = {
@@ -572,7 +609,6 @@ export function createVirtualCompilerHost(sys: System, compilerOptions: Compiler
       getCanonicalFileName: fileName => fileName,
       getDefaultLibFileName: () => "/" + ts.getDefaultLibFileName(compilerOptions), // '/lib.d.ts',
       // getDefaultLibLocation: () => '/',
-      getDirectories: () => [],
       getNewLine: () => sys.newLine,
       getSourceFile: (fileName, languageVersionOrOptions) => {
         return (
@@ -595,6 +631,12 @@ export function createVirtualCompilerHost(sys: System, compilerOptions: Compiler
       sourceFiles.set(sourceFile.fileName, sourceFile)
       return alreadyExists
     },
+    deleteFile: sourceFile => {
+      const alreadyExists = sourceFiles.has(sourceFile.fileName)
+      sourceFiles.delete(sourceFile.fileName)
+      sys.deleteFile!(sourceFile.fileName)
+      return alreadyExists
+    }
   }
   return vHost
 }
@@ -610,7 +652,7 @@ export function createVirtualLanguageServiceHost(
   customTransformers?: CustomTransformers
 ) {
   const fileNames = [...rootFiles]
-  const { compilerHost, updateFile } = createVirtualCompilerHost(sys, compilerOptions, ts)
+  const { compilerHost, updateFile, deleteFile } = createVirtualCompilerHost(sys, compilerOptions, ts)
   const fileVersions = new Map<string, string>()
   let projectVersion = 0
   const languageServiceHost: LanguageServiceHost = {
@@ -643,6 +685,7 @@ export function createVirtualLanguageServiceHost(
   type Return = {
     languageServiceHost: LanguageServiceHost
     updateFile: (sourceFile: import("typescript").SourceFile) => void
+    deleteFile: (sourceFile: import("typescript").SourceFile) => void
   }
 
   const lsHost: Return = {
@@ -655,6 +698,15 @@ export function createVirtualLanguageServiceHost(
       }
       updateFile(sourceFile)
     },
+    deleteFile: sourceFile => {
+      projectVersion++
+      fileVersions.set(sourceFile.fileName, projectVersion.toString())
+      const index = fileNames.indexOf(sourceFile.fileName)
+      if (index !== -1) {
+        fileNames.splice(index, 1)
+      }
+      deleteFile(sourceFile)
+    }
   }
   return lsHost
 }

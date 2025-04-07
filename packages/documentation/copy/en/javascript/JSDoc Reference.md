@@ -16,6 +16,7 @@ Note:
 #### Types
 
 - [`@type`](#type)
+- [`@import`](#import)
 - [`@param`](#param-and-returns) (or [`@arg`](#param-and-returns) or [`@argument`](#param-and-returns))
 - [`@returns`](#param-and-returns) (or [`@return`](#param-and-returns))
 - [`@typedef`](#typedef-callback-and-param)
@@ -198,29 +199,10 @@ function walk(p) {
 }
 ```
 
-import types can be used in type alias declarations:
-
-```js twoslash
-// @filename: types.d.ts
-export type Pet = {
-  name: string,
-};
-// @filename: main.js
-// ---cut---
-/**
- * @typedef {import("./types").Pet} Pet
- */
-
-/**
- * @type {Pet}
- */
-var myPet;
-myPet.name;
-```
-
 import types can be used to get the type of a value from a module if you don't know the type, or if it has a large type that is annoying to type:
 
 ```js twoslash
+// @types: node
 // @filename: accounts.d.ts
 export const userAccount = {
   name: "Name",
@@ -238,6 +220,44 @@ export const userAccount = {
  * @type {typeof import("./accounts").userAccount}
  */
 var x = require("./accounts").userAccount;
+```
+
+### `@import`
+
+The `@import` tag can let us reference exports from other files.
+
+```js twoslash
+// @filename: types.d.ts
+export type Pet = {
+  name: string,
+};
+// @filename: main.js
+// ---cut---
+/**
+ * @import {Pet} from "./types"
+ */
+
+/**
+ * @type {Pet}
+ */
+var myPet;
+myPet.name;
+```
+
+These tags don't actually import files at runtime, and the symbols they bring into scope can only be used within JSDoc comments for type-checking.
+
+```js twoslash
+// @filename: dog.js
+export class Dog {
+  woof() {
+    console.log("Woof!");
+  }
+}
+
+// @filename: main.js
+/** @import { Dog } from "./dog.js" */
+
+const d = new Dog(); // error!
 ```
 
 ### `@param` and `@returns`
@@ -666,6 +686,38 @@ function box<U>(u: U): Box<U> {
 }
 ```
 
+You can also link a property:
+
+```ts twoslash 
+type Pet = {
+  name: string
+  hello: () => string
+}
+
+/**
+ * Note: you should implement the {@link Pet.hello} method of Pet.
+ */
+function hello(p: Pet) {
+  p.hello()
+}
+```
+
+Or with an optional name:
+
+```ts twoslash
+type Pet = {
+  name: string
+  hello: () => string
+}
+
+/**
+ * Note: you should implement the {@link Pet.hello | hello} method of Pet.
+ */
+function hello(p: Pet) {
+  p.hello()
+}
+```
+
 ## Other
 
 ### `@enum`
@@ -714,6 +766,7 @@ Otherwise, `@example` will be parsed as a new tag.
 ### Other supported patterns
 
 ```js twoslash
+// @types: react
 class Foo {}
 // ---cut---
 var someObj = {

@@ -98,6 +98,11 @@
               "type": "boolean",
               "default": false,
               "markdownDescription": "Log paths used during the `moduleResolution` process.\n\nSee more: https://www.typescriptlang.org/tsconfig#traceResolution"
+            },
+            "stopBuildOnErrors": {
+              "description": "Skip building downstream projects on error in upstream project.",
+              "type": "boolean",
+              "default": false
             }
           }
         }
@@ -232,6 +237,11 @@
               "default": false,
               "markdownDescription": "Only output d.ts files and not JavaScript files.\n\nSee more: https://www.typescriptlang.org/tsconfig#emitDeclarationOnly"
             },
+            "erasableSyntaxOnly": {
+              "default": false,
+              "description": "Do not allow runtime constructs that are not part of ECMAScript.",
+              "type": "boolean"
+            },
             "exactOptionalPropertyTypes": {
               "description": "Differentiate between undefined and not present when type checking",
               "type": "boolean",
@@ -259,6 +269,11 @@
               "type": "boolean",
               "default": false,
               "markdownDescription": "Include source code in the sourcemaps inside the emitted JavaScript.\n\nSee more: https://www.typescriptlang.org/tsconfig#inlineSources"
+            },
+            "noCheck": {
+              "description": "Disable full type checking (only critical parse and emit errors will be reported).",
+              "type": "boolean",
+              "default": false
             },
             "jsx": {
               "description": "Specify what JSX code is generated.",
@@ -366,6 +381,7 @@
             "newLine": {
               "description": "Set the newline character for emitting files.",
               "type": "string",
+              "default": "lf",
               "anyOf": [
                 {
                   "enum": [
@@ -535,7 +551,7 @@
             "target": {
               "description": "Set the JavaScript language version for emitted JavaScript and include compatible library declarations.",
               "type": "string",
-              "default": "ES3",
+              "default": "ES5",
               "anyOf": [
                 {
                   "enum": [
@@ -648,7 +664,7 @@
             "forceConsistentCasingInFileNames": {
               "description": "Ensure that casing is correct in imports.",
               "type": "boolean",
-              "default": false,
+              "default": true,
               "markdownDescription": "Ensure that casing is correct in imports.\n\nSee more: https://www.typescriptlang.org/tsconfig#forceConsistentCasingInFileNames"
             },
             "generateCpuProfile": {
@@ -865,6 +881,11 @@
               },
               "markdownDescription": "Specify a set of bundled library declaration files that describe the target runtime environment.\n\nSee more: https://www.typescriptlang.org/tsconfig#lib"
             },
+            "libReplacement": {
+              "description": "Enable lib replacement.",
+              "type": "boolean",
+              "default": true
+            },
             "strictNullChecks": {
               "description": "When type checking, take into account `null` and `undefined`.",
               "type": "boolean",
@@ -914,6 +935,11 @@
               "type": "boolean",
               "default": false,
               "markdownDescription": "Emit more compliant, but verbose and less performant JavaScript for iteration.\n\nSee more: https://www.typescriptlang.org/tsconfig#downlevelIteration"
+            },
+            "isolatedDeclarations": {
+              "description": "Require sufficient annotation on exports so other tools can trivially generate declaration files.",
+              "type": "boolean",
+              "default": false
             },
             "checkJs": {
               "description": "Enable error reporting in type-checked JavaScript files.",
@@ -1010,6 +1036,26 @@
               "description": "Opt a project out of multi-project reference checking when editing.",
               "type": "boolean",
               "markdownDescription": "Opt a project out of multi-project reference checking when editing.\n\nSee more: https://www.typescriptlang.org/tsconfig#disableSolutionSearching"
+            },
+            "generateTrace": {
+              "description": "Generates an event trace and a list of types.",
+              "type": "boolean",
+              "default": false
+            },
+            "noUncheckedSideEffectImports": {
+              "description": "Check side effect imports.",
+              "type": "boolean",
+              "default": false
+            },
+            "strictBuiltinIteratorReturn": {
+              "description": "Built-in iterators are instantiated with a 'TReturn' type of 'undefined' instead of 'any'.",
+              "type": "boolean",
+              "default": false
+            },
+            "rewriteRelativeImportExtensions": {
+              "description": "Rewrite '.ts', '.tsx', '.mts', and '.cts' file extensions in relative import paths to their JavaScript equivalent in output files.",
+              "type": "boolean",
+              "default": false
             }
           }
         }
